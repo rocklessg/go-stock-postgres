@@ -1,0 +1,81 @@
+package middleware
+
+import (
+    "fmt"
+    "log"
+    "time"
+
+    "go-stock-api/models"
+    "go-stock-api/database"
+
+    _ "github.com/lib/pq"
+)
+
+func AddStock(stock models.Stock) int64 {
+    db, err := database.StockDbContext()
+    if err != nil {
+        return err
+    }
+    defer db.Close()
+
+    var id int64
+    createdAt := time.Now()
+    updatedAt := time.Now()
+
+    query := `INSERT INTO stocks (name, price, company, createdAt, updatedAt) VALUES ($1, $2,$3, $4, $5) RETURNING id`
+    _, err = db.Exec(query, stock.Name, stock.Price, stock.Company, createdAt, updatedAt).Scan(&id)
+
+    if err != nil {
+        return err
+    }
+
+    fmt.Printf("Last inserted stock ID: %v\n", id)
+    return id
+}
+
+func GetStockById(id int64) (models.Stock, error) {
+    db, err := database.StockDbContext()
+    if err != nil {
+        return nil, err
+    }
+    defer db.Close()
+
+    var stock Stock
+    query := `SELECT * FROM stocks WHERE id = $1`
+    err = db.QueryRow(query, id).Scan(&stock.ID, &stock.Name, &stock.Price, &stock.Company, &stock.CreatedAt, &stock.UpdatedAt)
+    
+    if err != nil {
+        return nil, err
+    }
+    return stock, nil
+}
+
+func UpdateStock(stock models.Stock) error {
+    db, err := connect()
+    if err != nil {
+        return err
+    }
+    defer db.Close()
+
+    query := `UPDATE stocks SET name = $1, price = $2 WHERE id = $3`
+    _, err = db.Exec(query, stock.Name, stock.Price, stock.ID)
+    if err != nil {
+        return err
+    }
+    return nil
+}
+
+func DeleteStock(id int) error {
+    db, err := connect()
+    if err != nil {
+        return err
+    }
+    defer db.Close()
+
+    query := `DELETE FROM stocks WHERE id = $1`
+    _, err = db.Exec(query, id)
+    if err != nil {
+        return err
+    }
+    return nil
+}

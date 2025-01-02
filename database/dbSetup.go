@@ -41,6 +41,3 @@ func StockDbContext() (*sql.DB, error) {
 	// Return the database connection
 	return db, nil
 }
-
-// Configure in the .env file
-//POSTGRES_CONNECTION_STRING="host=your_host user=your_user password=your_password dbname=your_dbname sslmode=disable"
