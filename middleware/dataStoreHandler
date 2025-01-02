@@ -33,6 +33,34 @@ func AddStock(stock models.Stock) int64 {
     return id
 }
 
+func GetAllStocks() ([]models.Stock, error) {
+    db, err := database.StockDbContext()
+    if err != nil {
+        return nil, err
+    }
+    defer db.Close()
+
+    var stocks []models.Stock
+
+    query := `SELECT * FROM stocks`
+    rows, err := db.Query(query)
+
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    for rows.Next() {
+        var stock models.Stock
+        err := rows.Scan(&stock.ID, &stock.Name, &stock.Price, &stock.Company, &stock.CreatedAt, &stock.UpdatedAt)
+        if err != nil {
+            log.Fatal(err)
+        }
+        stocks = append(stocks, stock)
+    }
+    return stocks, nil
+}
+
 func GetStockById(id int64) (models.Stock, error) {
     db, err := database.StockDbContext()
     if err != nil {
@@ -50,32 +78,47 @@ func GetStockById(id int64) (models.Stock, error) {
     return stock, nil
 }
 
-func UpdateStock(stock models.Stock) error {
-    db, err := connect()
+func EditStock(id int64, stock models.Stock) int64 {
+    db, err := database.StockDbContext()
     if err != nil {
         return err
     }
     defer db.Close()
 
-    query := `UPDATE stocks SET name = $1, price = $2 WHERE id = $3`
-    _, err = db.Exec(query, stock.Name, stock.Price, stock.ID)
+    query := `UPDATE stocks SET name = $1, price = $2, company = $3, updatedAt = $4 WHERE id = $5`
+    result, err = db.Exec(query, stock.Name, stock.Price, stock.Company, stock.UpdatedAt, id)
     if err != nil {
         return err
     }
-    return nil
+
+    rowsAffected, err := result.RowsAffected()
+    if err != nil {
+        return err
+    }
+
+    fmt.Printf("Total rows/record affected %v", rowsAffected)
+    return rowsAffected
 }
 
-func DeleteStock(id int) error {
-    db, err := connect()
+func RemoveStock(id int64) int64 {
+    db, err := database.StockDbContext()
     if err != nil {
         return err
     }
     defer db.Close()
-
+ 
     query := `DELETE FROM stocks WHERE id = $1`
-    _, err = db.Exec(query, id)
+    result, err = db.Exec(query, id)
+
     if err != nil {
         return err
     }
-    return nil
+
+    rowsAffected, err := result.RowsAffected()
+    if err != nil {
+        return err
+    }
+
+    fmt.Printf("Total rows/record affected %v", rowsAffected)
+    return rowsAffected
 }
