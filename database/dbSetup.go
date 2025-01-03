@@ -6,8 +6,8 @@ import (
 	"log"
 	"os" // used to read the environment variable
 
-	_ "github.com/lib/pq" // package used to read the .env file
-	"github.com/joho/godotenv" // postgres golang driver
+	_ "github.com/lib/pq" // postgres golang driver
+	"github.com/joho/godotenv" // package used to read the .env file
 )
 
 // StockDbContext initializes a connection to the PostgreSQL database using
