@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gorilla/mux" // used to get the params from the route
-	"go-stock-api/controllers"
+	controller "go-stock-api/controllers"
 )
 
 func Router() *mux.Router {
