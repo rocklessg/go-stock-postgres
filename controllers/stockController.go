@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"database/sql"
 	"encoding/json" // package to encode and decode the json into struct and vice versa
 	"fmt"
 	"net/http"
@@ -17,7 +18,7 @@ type response struct {
 	Message  string `json:"message"`
 }
 
-func CreateStock(w http.ResponseWriter, r *http.Request) {
+func CreateStock(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	
 	var stock models.Stock
 
@@ -28,7 +29,7 @@ func CreateStock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	insertStockResult := middleware.AddStock(stock)
+	insertStockResult := middleware.AddStock(stock, db)
 
 	// Format and Return the response
 	res := response{
@@ -38,9 +39,9 @@ func CreateStock(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
-func GetStocks(w http.ResponseWriter, r *http.Request) {
+func GetStocks(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
-	stocks, err := middleware.GetAllStocks()
+	stocks, err := middleware.GetAllStocks(db)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -50,7 +51,7 @@ func GetStocks(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(stocks)
 }
 
-func GetStock(w http.ResponseWriter, r *http.Request) {
+func GetStock(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	// Get the stockId from the request params, key is "id"
 	var params = mux.Vars(r)
 
@@ -62,7 +63,7 @@ func GetStock(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the stock by id
-	stock, err := middleware.GetStockById(int64(id))
+	stock, err := middleware.GetStockById(int64(id), db)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -72,7 +73,7 @@ func GetStock(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(stock)
 }
 
-func UpdateStock(w http.ResponseWriter, r *http.Request) {
+func UpdateStock(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	// Get the stockId from the request params, key is "id"
 	var params = mux.Vars(r)
@@ -94,20 +95,20 @@ func UpdateStock(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the stock
-	updateStockResult := middleware.EditStock(int64(id), stock)
+	updateStockResult := middleware.EditStock(int64(id), stock, db)
 
 	// format the response message
 	msg := fmt.Sprintf("Stock updated successfully. Total rows/record affected %v", updateStockResult)
 
 	// Format and Return the response
 	res := response{
-		ID: updateStockResult,
+		ID: int64(id),
 		Message: msg,
 	}
 	json.NewEncoder(w).Encode(res)
 }
 
-func DeleteStock(w http.ResponseWriter, r *http.Request) {
+func DeleteStock(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	// Get the stockId from the request params, key is "id"
 	var params = mux.Vars(r)
 
@@ -119,14 +120,14 @@ func DeleteStock(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete the stock
-	deleteStockResult := middleware.RemoveStock(int64(id))
+	deleteStockResult := middleware.RemoveStock(int64(id), db)
 
 	// format the response message
 	msg := fmt.Sprintf("Stock deleted successfully. Total rows/record affected %v", deleteStockResult)
 
 	// Format and Return the response
 	res := response{
-		ID: deleteStockResult,
+		ID: int64(id),
 		Message: msg,
 	}
 	json.NewEncoder(w).Encode(res)

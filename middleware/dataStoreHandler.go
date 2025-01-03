@@ -4,26 +4,22 @@ import (
     "fmt"
     "log"
     "time"
+    "database/sql"
 
     "go-stock-api/models"
-    "go-stock-api/database"
+   // "go-stock-api/database"
 
     _ "github.com/lib/pq"
 )
 
-func AddStock(stock models.Stock) int64 {
-    db, err := database.StockDbContext()
-    if err != nil {
-        log.Fatalf("Unable to open the database. %v", err)
-    }
-    defer db.Close()
-
+func AddStock(stock models.Stock, db *sql.DB) int64 {
+    
     var id int64
     createdAt := time.Now()
     updatedAt := time.Now()
 
-    query := `INSERT INTO stocks (name, price, company, createdAt, updatedAt) VALUES ($1, $2, $3, $4, $5) RETURNING id`
-    err = db.QueryRow(query, stock.Name, stock.Price, stock.Company, createdAt, updatedAt).Scan(&id)
+    query := `INSERT INTO stocks (name, price, company, created_At, updated_At) VALUES ($1, $2, $3, $4, $5) RETURNING id`
+    err := db.QueryRow(query, stock.Name, stock.Price, stock.Company, createdAt, updatedAt).Scan(&id)
 
     if err != nil {
         log.Fatalf("Unable to execute the query. %v", err)
@@ -33,13 +29,8 @@ func AddStock(stock models.Stock) int64 {
     return id
 }
 
-func GetAllStocks() ([]models.Stock, error) {
-    db, err := database.StockDbContext()
-    if err != nil {
-        return nil, err
-    }
-    defer db.Close()
-
+func GetAllStocks(db *sql.DB) ([]models.Stock, error) {
+  
     var stocks []models.Stock
 
     query := `SELECT * FROM stocks`
@@ -61,32 +52,28 @@ func GetAllStocks() ([]models.Stock, error) {
     return stocks, nil
 }
 
-func GetStockById(id int64) (models.Stock, error) {
-    db, err := database.StockDbContext()
-    if err != nil {
-        log.Fatalf("Unable to open the database. %v", err)
-    }
-    defer db.Close()
-
+func GetStockById(id int64, db *sql.DB) (models.Stock, error) {
+    
     var stock models.Stock
     query := `SELECT * FROM stocks WHERE id = $1`
-    err = db.QueryRow(query, id).Scan(&stock.ID, &stock.Name, &stock.Price, &stock.Company, &stock.CreatedAt, &stock.UpdatedAt)
+    err := db.QueryRow(query, id).Scan(&stock.ID, &stock.Name, &stock.Price, &stock.Company, &stock.CreatedAt, &stock.UpdatedAt)
     
     if err != nil {
-        log.Fatalf("Unable to execute the query. %v", err)
+       // log.Fatalf("Unable to execute the query. %v", err)
+        return stock, err
     }
     return stock, nil
 }
 
-func EditStock(id int64, stock models.Stock) int64 {
-    db, err := database.StockDbContext()
-    if err != nil {
-        log.Fatalf("Unable to open the database. %v", err)
-    }
-    defer db.Close()
+func EditStock(id int64, stock models.Stock, db *sql.DB) int64 {
+    // db, err := database.StockDbContext()
+    // if err != nil {
+    //     log.Fatalf("Unable to open the database. %v", err)
+    // }
+    // defer db.Close()
 
-    query := `UPDATE stocks SET name = $1, price = $2, company = $3, updatedAt = $4 WHERE id = $5`
-    result, err := db.Exec(query, stock.Name, stock.Price, stock.Company, stock.UpdatedAt, id)
+    query := `UPDATE stocks SET name = $1, price = $2, company = $3, updated_At = $4 WHERE id = $5`
+    result, err := db.Exec(query, stock.Name, stock.Price, stock.Company, time.Now(), id)
     if err != nil {
         log.Fatalf("Unable to execute the update query. %v", err)
     }
@@ -100,12 +87,12 @@ func EditStock(id int64, stock models.Stock) int64 {
     return rowsAffected
 }
 
-func RemoveStock(id int64) int64 {
-    db, err := database.StockDbContext()
-    if err != nil {
-        log.Fatalf("Unable to open the database. %v", err)
-    }
-    defer db.Close()
+func RemoveStock(id int64, db *sql.DB) int64 {
+    // db, err := database.StockDbContext()
+    // if err != nil {
+    //     log.Fatalf("Unable to open the database. %v", err)
+    // }
+    // defer db.Close()
  
     query := `DELETE FROM stocks WHERE id = $1`
     result, err := db.Exec(query, id)
