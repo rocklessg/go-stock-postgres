@@ -7,7 +7,6 @@ import (
     "database/sql"
 
     "go-stock-api/models"
-   // "go-stock-api/database"
 
     _ "github.com/lib/pq"
 )
@@ -59,19 +58,13 @@ func GetStockById(id int64, db *sql.DB) (models.Stock, error) {
     err := db.QueryRow(query, id).Scan(&stock.ID, &stock.Name, &stock.Price, &stock.Company, &stock.CreatedAt, &stock.UpdatedAt)
     
     if err != nil {
-       // log.Fatalf("Unable to execute the query. %v", err)
         return stock, err
     }
     return stock, nil
 }
 
 func EditStock(id int64, stock models.Stock, db *sql.DB) int64 {
-    // db, err := database.StockDbContext()
-    // if err != nil {
-    //     log.Fatalf("Unable to open the database. %v", err)
-    // }
-    // defer db.Close()
-
+  
     query := `UPDATE stocks SET name = $1, price = $2, company = $3, updated_At = $4 WHERE id = $5`
     result, err := db.Exec(query, stock.Name, stock.Price, stock.Company, time.Now(), id)
     if err != nil {
@@ -88,12 +81,7 @@ func EditStock(id int64, stock models.Stock, db *sql.DB) int64 {
 }
 
 func RemoveStock(id int64, db *sql.DB) int64 {
-    // db, err := database.StockDbContext()
-    // if err != nil {
-    //     log.Fatalf("Unable to open the database. %v", err)
-    // }
-    // defer db.Close()
- 
+    
     query := `DELETE FROM stocks WHERE id = $1`
     result, err := db.Exec(query, id)
 

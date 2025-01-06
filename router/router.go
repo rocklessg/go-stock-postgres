@@ -10,9 +10,7 @@ import (
 
 func Router(db *sql.DB) *mux.Router {
 
-	router := mux.NewRouter()
-
-	
+	router := mux.NewRouter()	
 
 	router.HandleFunc("/api/stock/{id}", func(w http.ResponseWriter, r *http.Request) {
 		controller.GetStock(w, r, db)}).Methods("GET", "OPTIONS")
@@ -20,7 +18,6 @@ func Router(db *sql.DB) *mux.Router {
 	router.HandleFunc("/api/stock", func(w http.ResponseWriter, r *http.Request) {
 		controller.GetStocks(w, r, db)}).Methods("GET")
 
-	//router.HandleFunc("/api/stock/add", controller.CreateStock).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/stock/add", func(w http.ResponseWriter, r *http.Request) {
 		controller.CreateStock(w, r, db)}).Methods("POST")
 

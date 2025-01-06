@@ -11,7 +11,7 @@ import (
 
  func main() {
 
-	// Initialize the database
+	// Initialize the database on application startup
 	db, err := database.StockDbContext()
 	if err != nil {
 		log.Fatalf("Failed to connect to the database: %v", err)
@@ -20,7 +20,7 @@ import (
 
 	//  Define the port number
 	r := router.Router(db)
-	fmt.Println("Starting server on the port 8000...")
+	fmt.Println("Server Started and running on port 8000...")
 	log.Fatal(http.ListenAndServe(":8000", r))
 	
  }
