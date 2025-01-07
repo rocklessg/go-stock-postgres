@@ -20,7 +20,7 @@ func StockDbContext() (*sql.DB, error) {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error loading .env file")
+		log.Fatalf("Error loading .env file: %v", err)
 	}
 
 	// Get the PostgreSQL connection string from the environment variable
@@ -31,7 +31,7 @@ func StockDbContext() (*sql.DB, error) {
 	}
 
 	// Open a connection to the database
-	fmt.Println("Attempting to connect to the database...")
+	fmt.Println("Connecting to the database...")
 	
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -42,25 +42,9 @@ func StockDbContext() (*sql.DB, error) {
 	err = db.Ping()
 	if err != nil {
 		return nil, fmt.Errorf("error connecting to the database: %v", err)
-	}
-
-	// Create the stocks table if it does not exist
-	createTableQuery := `
-	CREATE TABLE IF NOT EXISTS stocks (
-    id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    price NUMERIC(10, 2) NOT NULL,
-    company VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-	`
-	_, err = db.Exec(createTableQuery)
-	if err != nil {
-		return nil, fmt.Errorf("error creating stocks table: %v", err)
-	}
+	}	
 
 	// Return the database connection
-	log.Println("Database and stocks table initialized successfully.")
+	log.Println("Connected to the database successfully.")
 	return db, nil
 }
