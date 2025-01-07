@@ -25,7 +25,7 @@ type CreateStockParams struct {
 }
 
 func (q *Queries) CreateStock(ctx context.Context, arg CreateStockParams) (Stock, error) {
-	row := q.db.QueryRow(ctx, createStock, arg.Name, arg.Price, arg.Company)
+	row := q.db.QueryRowContext(ctx, createStock, arg.Name, arg.Price, arg.Company)
 	var i Stock
 	err := row.Scan(
 		&i.ID,
@@ -44,7 +44,7 @@ WHERE ID = $1
 `
 
 func (q *Queries) DeleteStock(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteStock, id)
+	_, err := q.db.ExecContext(ctx, deleteStock, id)
 	return err
 }
 
@@ -54,7 +54,7 @@ WHERE ID = $1 LIMIT 1
 `
 
 func (q *Queries) GetStock(ctx context.Context, id int64) (Stock, error) {
-	row := q.db.QueryRow(ctx, getStock, id)
+	row := q.db.QueryRowContext(ctx, getStock, id)
 	var i Stock
 	err := row.Scan(
 		&i.ID,
@@ -73,7 +73,7 @@ ORDER BY Name
 `
 
 func (q *Queries) ListStocks(ctx context.Context) ([]Stock, error) {
-	rows, err := q.db.Query(ctx, listStocks)
+	rows, err := q.db.QueryContext(ctx, listStocks)
 	if err != nil {
 		return nil, err
 	}
@@ -92,6 +92,9 @@ func (q *Queries) ListStocks(ctx context.Context) ([]Stock, error) {
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -117,7 +120,7 @@ type UpdateStockParams struct {
 }
 
 func (q *Queries) UpdateStock(ctx context.Context, arg UpdateStockParams) error {
-	_, err := q.db.Exec(ctx, updateStock,
+	_, err := q.db.ExecContext(ctx, updateStock,
 		arg.ID,
 		arg.Name,
 		arg.Price,

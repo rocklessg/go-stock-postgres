@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv" // package used to covert string to int
 
+	"go-stock-api/database"
 	"go-stock-api/middleware"
 	"go-stock-api/models"
 
@@ -20,7 +21,7 @@ type response struct {
 
 func CreateStock(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	
-	var stock models.Stock
+	var stock database.CreateStockParams
 
 	// Decode the incoming Stock json to the Stock struct
 	err := json.NewDecoder(r.Body).Decode(&stock)

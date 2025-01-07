@@ -5,7 +5,7 @@
 package database
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
 
 type Stock struct {
@@ -13,6 +13,6 @@ type Stock struct {
 	Name      string
 	Price     float32
 	Company   string
-	Createdat pgtype.Timestamp
-	Updatedat pgtype.Timestamp
+	Createdat time.Time
+	Updatedat time.Time
 }
