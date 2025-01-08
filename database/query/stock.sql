@@ -2,6 +2,9 @@
 SELECT * FROM stocks
 WHERE ID = $1 LIMIT 1;
 
+-- name: GetStockByName :one
+SELECT * FROM stocks WHERE name = $1 LIMIT 1;
+
 -- name: ListStocks :many
 SELECT * FROM stocks
 ORDER BY Name;

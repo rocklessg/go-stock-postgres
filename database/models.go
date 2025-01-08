@@ -13,6 +13,6 @@ type Stock struct {
 	Name      string
 	Price     float32
 	Company   string
-	Createdat time.Time
-	Updatedat time.Time
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

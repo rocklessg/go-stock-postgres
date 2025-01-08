@@ -51,11 +51,13 @@ func EditStock(id int64, stock database.UpdateStockParams, db *sql.DB) string {
   
     queries := database.New(db)
 
-    
+    // Ensure ID is set
+    stock.ID = id
+
     // Call the UpdateStock method from the sqlc generated code
     err := queries.UpdateStock(context.Background(), stock)
     if err != nil {
-        log.Fatalf("Unable to execute the update query. %v", err)
+        return fmt.Sprintf("Unable to execute the update query: %v", err)
     }  
 
     fmt.Printf("stock updated successfully %v", id)

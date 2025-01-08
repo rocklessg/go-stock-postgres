@@ -15,7 +15,7 @@ INSERT INTO stocks (
 ) VALUES (
     $1, $2, $3
 )
-RETURNING id, name, price, company, createdat, updatedat
+RETURNING id, name, price, company, created_at, updated_at
 `
 
 type CreateStockParams struct {
@@ -32,8 +32,8 @@ func (q *Queries) CreateStock(ctx context.Context, arg CreateStockParams) (Stock
 		&i.Name,
 		&i.Price,
 		&i.Company,
-		&i.Createdat,
-		&i.Updatedat,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -49,7 +49,7 @@ func (q *Queries) DeleteStock(ctx context.Context, id int64) error {
 }
 
 const getStock = `-- name: GetStock :one
-SELECT id, name, price, company, createdat, updatedat FROM stocks
+SELECT id, name, price, company, created_at, updated_at FROM stocks
 WHERE ID = $1 LIMIT 1
 `
 
@@ -61,14 +61,32 @@ func (q *Queries) GetStock(ctx context.Context, id int64) (Stock, error) {
 		&i.Name,
 		&i.Price,
 		&i.Company,
-		&i.Createdat,
-		&i.Updatedat,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getStockByName = `-- name: GetStockByName :one
+SELECT id, name, price, company, created_at, updated_at FROM stocks WHERE name = $1 LIMIT 1
+`
+
+func (q *Queries) GetStockByName(ctx context.Context, name string) (Stock, error) {
+	row := q.db.QueryRowContext(ctx, getStockByName, name)
+	var i Stock
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Price,
+		&i.Company,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const listStocks = `-- name: ListStocks :many
-SELECT id, name, price, company, createdat, updatedat FROM stocks
+SELECT id, name, price, company, created_at, updated_at FROM stocks
 ORDER BY Name
 `
 
@@ -86,8 +104,8 @@ func (q *Queries) ListStocks(ctx context.Context) ([]Stock, error) {
 			&i.Name,
 			&i.Price,
 			&i.Company,
-			&i.Createdat,
-			&i.Updatedat,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -110,7 +128,7 @@ SET
     company = COALESCE($4, company),
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, name, price, company, createdat, updatedat
+RETURNING id, name, price, company, created_at, updated_at
 `
 
 type UpdateStockParams struct {
