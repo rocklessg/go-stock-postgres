@@ -104,11 +104,12 @@ func (q *Queries) ListStocks(ctx context.Context) ([]Stock, error) {
 
 const updateStock = `-- name: UpdateStock :exec
 UPDATE stocks
-SET Name = $2,
-        Price = $3,
-        Company = $4,
-        UpdatedAt = CURRENT_TIMESTAMP
-WHERE ID = $1
+SET 
+    name = COALESCE($2, name),
+    price = COALESCE($3, price),
+    company = COALESCE($4, company),
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
 RETURNING id, name, price, company, createdat, updatedat
 `
 

@@ -5,12 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"time"
 
 	"go-stock-api/database"
-	"go-stock-api/models"
-
-	//_ "github.com/lib/pq"
 )
 
 func AddStock(stock database.CreateStockParams, db *sql.DB) int64 {
@@ -66,20 +62,17 @@ func EditStock(id int64, stock database.UpdateStockParams, db *sql.DB) string {
     return "Stock updated successfully"
 }
 
-func RemoveStock(id int64, db *sql.DB) int64 {
+func RemoveStock(id int64, db *sql.DB) (string, error) {
     
-    query := `DELETE FROM stocks WHERE id = $1`
-    result, err := db.Exec(query, id)
+    queries := database.New(db)
+
+    // Call the DeleteStock method from the sqlc generated code
+    err := queries.DeleteStock(context.Background(), id) 
 
     if err != nil {
-        log.Fatalf("Unable to execute delete query. %v", err)
+        return "", fmt.Errorf("unable to execute delete query: %v", err)
     }
-
-    rowsAffected, err := result.RowsAffected()
-    if err != nil {
-        log.Fatalf("Unable to fetch rows affected. %v", err)
-    }
-
-    fmt.Printf("Total rows/record affected %v", rowsAffected)
-    return rowsAffected
+    
+    fmt.Println("Stock deleted successfully")
+    return "Stock deleted successfully", nil
 }
