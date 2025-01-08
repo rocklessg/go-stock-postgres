@@ -9,7 +9,6 @@ import (
 
 	"go-stock-api/database"
 	"go-stock-api/middleware"
-	"go-stock-api/models"
 
 	"github.com/gorilla/mux"
 )
@@ -86,7 +85,7 @@ func UpdateStock(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	var stock models.Stock
+	var stock database.UpdateStockParams
 
 	// Decode the incoming Stock json to the Stock struct
 	err = json.NewDecoder(r.Body).Decode(&stock)
@@ -110,6 +109,7 @@ func UpdateStock(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 }
 
 func DeleteStock(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	
 	// Get the stockId from the request params, key is "id"
 	var params = mux.Vars(r)
 
@@ -121,7 +121,11 @@ func DeleteStock(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	// Delete the stock
-	deleteStockResult := middleware.RemoveStock(int64(id), db)
+	deleteStockResult, err := middleware.RemoveStock(int64(id), db)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	// format the response message
 	msg := fmt.Sprintf("Stock deleted successfully. Total rows/record affected %v", deleteStockResult)
