@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"database/sql"
 	"encoding/json" // package to encode and decode the json into struct and vice versa
 	"net/http"
 	"strconv" // package used to covert string to int
@@ -10,6 +9,7 @@ import (
 	"go-stock-api/middleware"
 
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type response struct {
@@ -17,7 +17,7 @@ type response struct {
 	Message  string `json:"message"`
 }
 
-func CreateStock(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func CreateStock(w http.ResponseWriter, r *http.Request, db *pgxpool.Pool) {
 	
 	var stock database.CreateStockParams
 
@@ -47,7 +47,7 @@ func CreateStock(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	json.NewEncoder(w).Encode(res)
 }
 
-func GetStocks(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func GetStocks(w http.ResponseWriter, r *http.Request, db *pgxpool.Pool) {
 
 	stocks, err := middleware.GetAllStocks(db)
 	if err != nil {
@@ -59,7 +59,7 @@ func GetStocks(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	json.NewEncoder(w).Encode(stocks)
 }
 
-func GetStock(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func GetStock(w http.ResponseWriter, r *http.Request, db *pgxpool.Pool) {
 	// Get the stockId from the request params, key is "id"
 	var params = mux.Vars(r)
 
@@ -81,7 +81,7 @@ func GetStock(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	json.NewEncoder(w).Encode(stock)
 }
 
-func UpdateStock(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func UpdateStock(w http.ResponseWriter, r *http.Request, db *pgxpool.Pool) {
 
 	// Get the stockId from the request params, key is "id"
 	var params = mux.Vars(r)
@@ -113,7 +113,7 @@ func UpdateStock(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	json.NewEncoder(w).Encode(res)
 }
 
-func DeleteStock(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func DeleteStock(w http.ResponseWriter, r *http.Request, db *pgxpool.Pool) {
 	
 	// Get the stockId from the request params, key is "id"
 	var params = mux.Vars(r)
