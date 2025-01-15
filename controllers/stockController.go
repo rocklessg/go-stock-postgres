@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"database/sql"
 	"encoding/json" // package to encode and decode the json into struct and vice versa
 	"fmt"
 	"net/http"
@@ -23,6 +22,12 @@ func CreateStock(w http.ResponseWriter, r *http.Request, db *pgxpool.Pool) {
 	
 	var stock database.CreateStockParams
 
+	// Validate the incoming request has the required fields
+	if stock.Name == "" || !stock.Price.Valid || stock.Company == "" {
+		http.Error(w, "Stock name, price and company name are required", http.StatusBadRequest)
+		return
+	}
+
 	// Decode the incoming Stock json to the Stock struct
 	err := json.NewDecoder(r.Body).Decode(&stock)
 	if err != nil {
@@ -36,17 +41,11 @@ func CreateStock(w http.ResponseWriter, r *http.Request, db *pgxpool.Pool) {
 	existingStock, err := queries.GetStockByName(r.Context(), stock.Name)
 	if err != nil {
 		fmt.Println(err)
-		// if err != sql.ErrNoRows {
-							
-		// }	
-		// No duplicate found, proceed to creation
+			// No duplicate found, proceed to creation
 			
 			// Create new stock
 			insertStockResult := middleware.AddStock(stock, db)
-			// if insertStockResult == 0 {
-			// 	http.Error(w, "Error creating stock", http.StatusInternalServerError)
-			// }
-
+			
 			// Format and Return the response
 			res := response{
 				ID: insertStockResult,
