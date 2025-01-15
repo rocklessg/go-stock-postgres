@@ -7,6 +7,8 @@ package database
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createStock = `-- name: CreateStock :one
@@ -20,7 +22,7 @@ RETURNING id, name, price, company, created_at, updated_at
 
 type CreateStockParams struct {
 	Name    string
-	Price   float32
+	Price   pgtype.Numeric
 	Company string
 }
 
@@ -43,7 +45,7 @@ DELETE FROM stocks
 WHERE ID = $1
 `
 
-func (q *Queries) DeleteStock(ctx context.Context, id int64) error {
+func (q *Queries) DeleteStock(ctx context.Context, id int32) error {
 	_, err := q.db.Exec(ctx, deleteStock, id)
 	return err
 }
@@ -53,7 +55,7 @@ SELECT id, name, price, company, created_at, updated_at FROM stocks
 WHERE ID = $1 LIMIT 1
 `
 
-func (q *Queries) GetStock(ctx context.Context, id int64) (Stock, error) {
+func (q *Queries) GetStock(ctx context.Context, id int32) (Stock, error) {
 	row := q.db.QueryRow(ctx, getStock, id)
 	var i Stock
 	err := row.Scan(
@@ -129,9 +131,9 @@ RETURNING id, name, price, company, created_at, updated_at
 `
 
 type UpdateStockParams struct {
-	ID      int64
+	ID      int32
 	Name    string
-	Price   float32
+	Price   pgtype.Numeric
 	Company string
 }
 

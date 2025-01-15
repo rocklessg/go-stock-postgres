@@ -9,9 +9,9 @@ import (
 )
 
 type Stock struct {
-	ID        int64
+	ID        int32
 	Name      string
-	Price     float32
+	Price     pgtype.Numeric
 	Company   string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
