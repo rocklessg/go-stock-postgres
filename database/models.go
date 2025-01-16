@@ -5,14 +5,14 @@
 package database
 
 import (
-	"time"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Stock struct {
-	ID        int64
+	ID        int32
 	Name      string
-	Price     float32
+	Price     pgtype.Numeric
 	Company   string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
 }

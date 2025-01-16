@@ -1,14 +1,14 @@
 package router
 
 import (
-	"database/sql"
 	controller "go-stock-api/controllers"
 	"net/http"
 
 	"github.com/gorilla/mux" // used to get the params from the route
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func Router(db *sql.DB) *mux.Router {
+func Router(db *pgxpool.Pool) *mux.Router {
 
 	router := mux.NewRouter()	
 

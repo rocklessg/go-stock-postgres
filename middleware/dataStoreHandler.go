@@ -2,18 +2,18 @@ package middleware
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
-	"log"
+    "log"
+    "github.com/jackc/pgx/v5/pgxpool"
 
 	"go-stock-api/database"
 )
 
-func AddStock(stock database.CreateStockParams, db *sql.DB) int64 {
+func AddStock(stock database.CreateStockParams, db *pgxpool.Pool) int32 {
     // Initialize the sqlc queries
     queries := database.New(db)
 
-    // Vall the CreateStock method from the sqlc generated code
+    // Call the CreateStock method from the sqlc generated code
     newStock, err := queries.CreateStock(context.Background(), stock) 
     if err != nil {
         log.Fatalf("Unable to execute the query. %v", err)
@@ -23,7 +23,7 @@ func AddStock(stock database.CreateStockParams, db *sql.DB) int64 {
     return newStock.ID
 }
 
-func GetAllStocks(db *sql.DB) ([]database.Stock, error) {
+func GetAllStocks(db *pgxpool.Pool) ([]database.Stock, error) {
   
     queries := database.New(db)
 
@@ -36,7 +36,7 @@ func GetAllStocks(db *sql.DB) ([]database.Stock, error) {
     return stocks, nil
 }
 
-func GetStockById(id int64, db *sql.DB) (database.Stock, error) {
+func GetStockById(id int32, db *pgxpool.Pool) (database.Stock, error) {
     
     queries := database.New(db)
 
@@ -47,7 +47,7 @@ func GetStockById(id int64, db *sql.DB) (database.Stock, error) {
     return stock, nil
 }
 
-func EditStock(id int64, stock database.UpdateStockParams, db *sql.DB) string {
+func EditStock(id int32, stock database.UpdateStockParams, db *pgxpool.Pool) string {
   
     queries := database.New(db)
 
@@ -64,7 +64,7 @@ func EditStock(id int64, stock database.UpdateStockParams, db *sql.DB) string {
     return "Stock updated successfully"
 }
 
-func RemoveStock(id int64, db *sql.DB) (string, error) {
+func RemoveStock(id int32, db *pgxpool.Pool) (string, error) {
     
     queries := database.New(db)
 

@@ -7,6 +7,8 @@ package database
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createStock = `-- name: CreateStock :one
@@ -20,12 +22,12 @@ RETURNING id, name, price, company, created_at, updated_at
 
 type CreateStockParams struct {
 	Name    string
-	Price   float32
+	Price   pgtype.Numeric
 	Company string
 }
 
 func (q *Queries) CreateStock(ctx context.Context, arg CreateStockParams) (Stock, error) {
-	row := q.db.QueryRowContext(ctx, createStock, arg.Name, arg.Price, arg.Company)
+	row := q.db.QueryRow(ctx, createStock, arg.Name, arg.Price, arg.Company)
 	var i Stock
 	err := row.Scan(
 		&i.ID,
@@ -43,8 +45,8 @@ DELETE FROM stocks
 WHERE ID = $1
 `
 
-func (q *Queries) DeleteStock(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteStock, id)
+func (q *Queries) DeleteStock(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteStock, id)
 	return err
 }
 
@@ -53,8 +55,8 @@ SELECT id, name, price, company, created_at, updated_at FROM stocks
 WHERE ID = $1 LIMIT 1
 `
 
-func (q *Queries) GetStock(ctx context.Context, id int64) (Stock, error) {
-	row := q.db.QueryRowContext(ctx, getStock, id)
+func (q *Queries) GetStock(ctx context.Context, id int32) (Stock, error) {
+	row := q.db.QueryRow(ctx, getStock, id)
 	var i Stock
 	err := row.Scan(
 		&i.ID,
@@ -72,7 +74,7 @@ SELECT id, name, price, company, created_at, updated_at FROM stocks WHERE name =
 `
 
 func (q *Queries) GetStockByName(ctx context.Context, name string) (Stock, error) {
-	row := q.db.QueryRowContext(ctx, getStockByName, name)
+	row := q.db.QueryRow(ctx, getStockByName, name)
 	var i Stock
 	err := row.Scan(
 		&i.ID,
@@ -91,7 +93,7 @@ ORDER BY Name
 `
 
 func (q *Queries) ListStocks(ctx context.Context) ([]Stock, error) {
-	rows, err := q.db.QueryContext(ctx, listStocks)
+	rows, err := q.db.Query(ctx, listStocks)
 	if err != nil {
 		return nil, err
 	}
@@ -111,9 +113,6 @@ func (q *Queries) ListStocks(ctx context.Context) ([]Stock, error) {
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -132,14 +131,14 @@ RETURNING id, name, price, company, created_at, updated_at
 `
 
 type UpdateStockParams struct {
-	ID      int64
+	ID      int32
 	Name    string
-	Price   float32
+	Price   pgtype.Numeric
 	Company string
 }
 
 func (q *Queries) UpdateStock(ctx context.Context, arg UpdateStockParams) error {
-	_, err := q.db.ExecContext(ctx, updateStock,
+	_, err := q.db.Exec(ctx, updateStock,
 		arg.ID,
 		arg.Name,
 		arg.Price,
